@@ -27,14 +27,13 @@ app.get("/urls/:id", (request, response) => {
 });
 
 app.post("/urls", (request, response) => {
-  console.log(generateRandomString());
+  urlDatabase[generateRandomString()] = request.body.longURL;
   response.send("Ok");
 });
 
 function generateRandomString() {
   return Math.random().toString(36).substr(2,6);
 }
-
 
 app.listen(PORT, () =>{
   console.log(`Examine app listening on port ${PORT}!`)
