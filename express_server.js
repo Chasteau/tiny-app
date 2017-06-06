@@ -15,7 +15,7 @@ app.get("/urls", (request, response) => {
 })
 
 app.get("/urls/:id", (request, response) => {
-  let templateVars = {shortURl: req.params.id};
+  let templateVars = {shortURl: request.params.id, longURl: urlDatabase[request.params.id]  };
   response.render("urls_show", templateVars);
 });
 
