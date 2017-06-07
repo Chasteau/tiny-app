@@ -1,39 +1,24 @@
 <!DOCTYPE html>
 <html lang="en">
   <head>
-    <title>TinyApp</title>
+    <title> TinyApp </title>
   </head>
   <body>
-    <header> <%include ./partials/_header %> </header>
-  <!-- ** A list or table of the URLs
-  and their shortened forms -->
 
-  <h1>David's Amazing Link Shortner!<h2>
-    <% for(var url in urls){%>
-      <%= url%> - <%= urls[url]%> <br/>
-      <%}%>
-<!--
+    <h1>David's Amazing Link Shortner!</h1>
     <table>
-      <tr>
+    <% urls.forEach((url) => {%>
+    <tr>
+      <td> <%= url.original %> --> </td>
+      <td> <%= url.shorter %> </td>
+      <td>
+        <form action="/donuts" method="POST">
+        <input type="submit" value="Delete" />
+        </form>
+      </td>
+    </tr>
+    <% }) %>
+  </table>
 
-        <th>Long Links</th>
-        <th>Shortened Links</th>
-      </tr>
-      <tr>
-
-        <% for(var url in urls){%>
-          <td><%= url%> - <%= urls[url]%> </td>
-          <%}%>
-
-
-      </tr>
-    </table>
-    A link for shortening a new URL
-    (this will be a dead link for now,
-    that is it doesn't need to go anywhere
-    since you'll be building its functionality later).
-    -->
-    <button type="button" onclick="do something">
-       Click To Shorten Link</button>
   </body>
 </html>
