@@ -35,44 +35,45 @@ let urlsDB = [
 app.get("/urls", (request, response) => {
   let templateVars = {urls: urlsDB};
   response.render("urls_index", templateVars)
-})
+});
 
 app.get("/urls/new", (request, response) => {
   response.render("urls_new");
-})
+});
 
 app.get("/urls/:id", (request, response) => {
-  // find url from db
-  let url = findURL(request.params.id);
-
-  if(!url) {
-    response.status(404).send("Url Not Found");
-    return;
-  }
-  // update name on output
-  url.original = request.body.original;
-
-  const newDB = urlsDB.map((u) => {
-    if(u.shorter == url.shorter){
-      return url;
-    }
-    return u;
-  });
-
-  urlsDB = newDB;
-
-  response.redirect('/urls/' + reqquest.params.id);
-
-//   let templateVars = {shortURL: request.params.id,
-//     longURL: urlsDB.original[request.params.id] };
-//   response.render("urls_show", templateVars);
-// })
+  let obj = findURL(request.params.id);
+  response.render('urls_show', obj)
+  // // find url from db
+  // let url = findURL(request.params.id);
+  //
+  // if(!url) {
+  //   response.status(404).send("Url Not Found");
+  //   return;
+  // }
+  // // update name on output
+  // url.original = request.body.original;
+  //
+  // const newDB = urlsDB.map((u) => {
+  //   if(u.shorter == url.shorter){
+  //     return url;
+  //   }
+  //   return u;
+  // });
+  // urlsDB = newDB;
+  // response.redirect('/urls/' + reqquest.params.id);
+});
 //
-// app.get("/u/:shortURL", (request, response) => {
-//    let longURL = urlsDB.original[request.params.shortURL];
-//   response.redirect(longURL);
-})
+// app.post("/urls/")
 
+app.get("/u/:id", (request, response) => {
+  //  let longURL = urlsDB.original[request.params.shortURL];
+  //  let templateVars = {shortURL: request.params.id,
+  //    longURL: urlsDB.original[request.params.id] };
+   response.render("urls_show")
+ });
+
+//Add new url
 app.post("/urls", (request, response) => {
   const newUrl = {
       shorter: generateRandomString(),
@@ -83,6 +84,7 @@ app.post("/urls", (request, response) => {
   response.redirect(301, "/urls")
 });
 
+// Delete Url
 app.post('/urls/:id/delete', (request, response) => {
   // find if url is in db
   const url = findURL(request.params.id);
@@ -98,8 +100,33 @@ app.post('/urls/:id/delete', (request, response) => {
 
   //redirect to "/urls" index
   response.redirect(302,"/urls" )
-})
+});
+
+// Update Url
+app.post("/urls/:id/update", (request, response) => {
+  // check if url in db
+  const url = findURL(request.params.id);
+  console.log(url);
+
+  if(!url) {
+    response.status(404).send('Url not found');
+    return;
+  }
+  //if yes, then update original url
+  url.original = request.body.name;
+  //replace oringal url with new longURL
+  const updatedDB = urlsDB.map((u) => {
+    if(u.shorter == url.shorter) {
+      return url;
+    }
+    return u;
+  });
+
+  urlsDB = updatedDB;
+
+  response.redirect(302, "/urls")
+ });
 
 app.listen(PORT, () =>{
   console.log(`TinyApp is listening on port ${PORT}!`)
-})
+});

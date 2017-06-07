@@ -5,6 +5,12 @@
   </head>
   <body>
   <h1>Full URL to Short URL!<h2>
-      <%= shortURL%> ----- <%= longURL%> 
+      <%= shorter%> ----- <%= original%>
+
+      <form action="/urls/<%= shorter %>/update" method="POST">
+      <input type="text" name="name" placeholder="<%= original %>" />
+      <input type="submit" value="Update" />
+      </form>
+
   </body>
 </html>
