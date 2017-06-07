@@ -26,10 +26,14 @@ app.get("/urls/:id", (request, response) => {
   response.render("urls_show", templateVars);
 });
 
+app.get("/u/:shortURL", (request, response) => {
+   let longURL = urlDatabase[request.params.shortURL];
+  response.redirect(longURL);
+});
+
 app.post("/urls", (request, response) => {
   urlDatabase[generateRandomString()] = request.body.longURL;
-  response.send("Ok");
-});
+  response.redirect(301, "http://localhost:8080/urls/")});
 
 function generateRandomString() {
   return Math.random().toString(36).substr(2,6);
