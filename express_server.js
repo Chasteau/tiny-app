@@ -30,7 +30,7 @@ const usersDB = {
     email: "user2@example.com",
     password: "dishwasher-funk"
   }
-};
+}
 
  function generateRandomString() {
    return Math.random().toString(36).substr(2,6);
@@ -48,67 +48,45 @@ const usersDB = {
  }
 
  // checks if user is in db, and returns user object
- function isUser(name) {
-   let userToCheck;
-   for (var users in usersDB) {
-     if(usersDB.hasOwnProperty(name)) {
-       userToCheck = name;
-     }
-   }
-   return userToCheck;
- }
+ function isUser(emailToFind) {
+   let userInDB;
+   for(var id in usersDB){
+    if(usersDB[id].email === emailToFind) {
+      userInDB = true;
+      } else {
+        userInDB = false;
+      }
+    }
+   return userInDB;
+ };
 
 app.get("/urls", (request, response) => {
   let templateVars = {
     urls: urlsDB,
-  username: request.cookies["username"]
-};
+    username: request.cookies["username"]
+  };
   response.render("urls_index", templateVars)
 });
 
 app.get("/urls/new", (request, response) => {
   let templateVars = {
   username: request.cookies["username"]
-};
+  };
   response.render("urls_new", templateVars);
 });
 
 app.get("/urls/:id", (request, response) => {
   let user = findURL(request.params.id);
   let templateVars = {
-  username: request.cookies["username"]
+    username: request.cookies["username"]
   };
-  // let obj = findURL(request.params.id);
   response.render('urls_show', {templateVars, user})
-  // // find url from db
-  // let url = findURL(request.params.id);
-  //
-  // if(!url) {
-  //   response.status(404).send("Url Not Found");
-  //   return;
-  // }
-  // // update name on output
-  // url.original = request.body.original;
-  //
-  // const newDB = urlsDB.map((u) => {
-  //   if(u.shorter == url.shorter){
-  //     return url;
-  //   }
-  //   return u;
-  // });
-  // urlsDB = newDB;
-  // response.redirect('/urls/' + reqquest.params.id);
 });
-//
-// app.post("/urls/")
 
 app.get("/u/:id", (request, response) => {
-  //  let longURL = urlsDB.original[request.params.shortURL];
-  //  let templateVars = {shortURL: request.params.id,
-  //    longURL: urlsDB.original[request.params.id] };
   let templateVars = {
-  username: request.cookies["username"]
-};
+    username: request.cookies["username"]
+  };
    response.render("urls_show", templateVars)
  });
 
@@ -117,11 +95,8 @@ app.get("/register", (request, response) => {
   // let templateVars = {
   // username: request.cookies["username"]
   // };
-  response.render("/register");
+  response.render("register");
 });
-
-
-
 
 //Add new url
 app.post("/urls", (request, response) => {
@@ -130,7 +105,7 @@ app.post("/urls", (request, response) => {
       original: request.body.longURL
   }
   urlsDB.push(newUrl);
-  console.log(urlsDB);
+  //console.log(urlsDB);
   response.redirect(301, "/urls")
 });
 
@@ -138,7 +113,7 @@ app.post("/urls", (request, response) => {
 app.post('/urls/:id/delete', (request, response) => {
   // find if url is in db
   const url = findURL(request.params.id);
-  console.log(url);
+  // console.log(url);
   // if not found return a 404
   if(!url) {
     response.status(404).send(" URL not found!");
@@ -156,7 +131,7 @@ app.post('/urls/:id/delete', (request, response) => {
 app.post("/urls/:id/update", (request, response) => {
   // check if url in db
   const url = findURL(request.params.id);
-  console.log(url);
+  //console.log(url);
 
   if(!url) {
     response.status(404).send('Url not found');
@@ -175,40 +150,38 @@ app.post("/urls/:id/update", (request, response) => {
   response.redirect(302, "/urls")
  });
 
-
  app.post('/login', (request, response) => {
-  //   console.log(request.params.id);
-   //console.log(request.body.username);
    // set cookie using res.cookie without using options.
-
    // display username input back to the user
    response.cookie("username", request.body.username);
-   //console.log(response.cookie(request.body.username));
    // redirect user to urls page
-   //console.log(request.cookies["username"]);
    response.redirect(302, '/urls');
 
  });
 
  // log out users
  app.post('/logout', (request, response) => {
-  //  let username = request.body.username;
-  //  console.log('usernae:',username);
-  //  console.log('cookie:',request.cookies["username"]);
-   //
-  //  if(username == request.cookies["username"]) {
      response.clearCookie("username");
      response.redirect(302, '/urls');
-  //  }
  });
 
- //user registration
+ // user registration
  app.post('/register', (request, response) => {
-   // check if user exisits in usersDB if yes then return, else
-   //add newuser to usersDB (email, pass, userid)
-   // generate random user id using random string function
-   // set cookie "user_id"  and redirect to urls page
-
+   let user = isUser(request.body.email);
+   // check if user exists in usersDB if yes then return, else
+   if(!user){
+    // generate random user id using random string function
+    newUserId = generateRandomString();
+     //add newuser to usersDB (email, pass, userid)
+     usersDB[newUserId] = {
+       Id: newUserId,
+       email: request.body.email,
+       password: request.body.password
+     }
+      // set cookie "user_id"  and redirect to urls page
+      response.cookie("user_id", newUserId);
+     return response.redirect(302, "/urls");
+   } return response.redirect(302, "/urls");
  });
 
 app.listen(PORT, () =>{
