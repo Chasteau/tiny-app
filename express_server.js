@@ -8,7 +8,7 @@ app.use(bodyParser.urlencoded({extended: true}));
 app.use(cookieParser());
 app.set("view engine", "ejs");
 
-let urlsDB = [
+const urlsDB = [
   {
     shorter: "b2xVn3",
     original: "http://www.lighthouselabs.ca"
@@ -19,10 +19,24 @@ let urlsDB = [
   }
 ];
 
+const usersDB = {
+  "userRandomID": {
+    id: "userRandomID",
+    email: "user@example.com",
+    password: "purple-monkey-dinosaur"
+  },
+ "user2RandomID": {
+    id: "user2RandomID",
+    email: "user2@example.com",
+    password: "dishwasher-funk"
+  }
+};
+
  function generateRandomString() {
    return Math.random().toString(36).substr(2,6);
  }
 
+// checks if url is in db and returns the object with url
  function findURL(name){
    let foundURL;
    urlsDB.forEach((url) => {
@@ -31,6 +45,17 @@ let urlsDB = [
      }
    });
    return foundURL;
+ }
+
+ // checks if user is in db, and returns user object
+ function isUser(name) {
+   let userToCheck;
+   for (var users in usersDB) {
+     if(usersDB.hasOwnProperty(name)) {
+       userToCheck = name;
+     }
+   }
+   return userToCheck;
  }
 
 app.get("/urls", (request, response) => {
@@ -52,7 +77,7 @@ app.get("/urls/:id", (request, response) => {
   let user = findURL(request.params.id);
   let templateVars = {
   username: request.cookies["username"]
-};
+  };
   // let obj = findURL(request.params.id);
   response.render('urls_show', {templateVars, user})
   // // find url from db
@@ -86,6 +111,17 @@ app.get("/u/:id", (request, response) => {
 };
    response.render("urls_show", templateVars)
  });
+
+// render registration page
+app.get("/register", (request, response) => {
+  // let templateVars = {
+  // username: request.cookies["username"]
+  // };
+  response.render("/register");
+});
+
+
+
 
 //Add new url
 app.post("/urls", (request, response) => {
@@ -154,6 +190,7 @@ app.post("/urls/:id/update", (request, response) => {
 
  });
 
+ // log out users
  app.post('/logout', (request, response) => {
   //  let username = request.body.username;
   //  console.log('usernae:',username);
@@ -163,6 +200,15 @@ app.post("/urls/:id/update", (request, response) => {
      response.clearCookie("username");
      response.redirect(302, '/urls');
   //  }
+ });
+
+ //user registration
+ app.post('/register', (request, response) => {
+   // check if user exisits in usersDB if yes then return, else
+   //add newuser to usersDB (email, pass, userid)
+   // generate random user id using random string function
+   // set cookie "user_id"  and redirect to urls page
+
  });
 
 app.listen(PORT, () =>{
