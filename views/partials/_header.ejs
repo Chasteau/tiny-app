@@ -1,7 +1,15 @@
 <!-- views/partials//header.ejs -->
-<a href="/register">
-  <button type="button">Register</button>
-</a>
-<a href="/login">
-  <button type="button">Login</button>
-</a>
+
+<% if(!userID) { %>
+  <a href="/register">
+    <button type="button">Register</button>
+  </a>
+<% } else if(userID) { %>
+  <form action="/logout" method="POST">
+  <input type="submit" value="Logout" />
+  </form>
+<% } else { %>
+  <a href="/login">
+    <button type="button">Login</button>
+  </a>
+<% }%>

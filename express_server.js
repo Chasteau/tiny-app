@@ -88,11 +88,11 @@ app.get("/urls/new", (request, response) => {
 });
 
 app.get("/urls/:id", (request, response) => {
-  let user = findURL(request.params.id);
+  let url = findURL(request.params.id);
   let templateVars = {
     userID: usersDB[request.cookies["user_id"]]
   };
-  response.render('urls_show', {templateVars, user})
+  response.render('urls_show', {templateVars, url})
 });
 
 app.get("/u/:id", (request, response) => {
@@ -193,7 +193,7 @@ app.post("/urls/:id/update", (request, response) => {
 
  // log out users
  app.post('/logout', (request, response) => {
-     response.clearCookie("username");
+     response.clearCookie("user_id");
      response.redirect(302, '/login');
  });
 
@@ -211,7 +211,7 @@ app.post("/urls/:id/update", (request, response) => {
    let user = checkUserEmail(request.body.email);
     if (!user){
     // generate random user id using random string function
-      newUserId = generateRandomString();
+      let newUserId = generateRandomString();
      //add newuser to usersDB (email, pass, userid)
       usersDB[newUserId] = {
        Id: newUserId,
