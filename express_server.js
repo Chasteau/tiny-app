@@ -49,10 +49,35 @@ const usersDB = {
  }
 
  // checks if user is in db, and returns user object
- function isUser(emailToFind) {
+ function checkUserEmail(emailToCheck) {
    let userInDB;
    for(var id in usersDB){
-    if(usersDB[id].email === emailToFind) {
+    if(usersDB[id].email === emailToCheck) {
+      return usersDB[id];
+      }
+    }
+    return undefined;
+ };
+
+ // checks if user is in db, and returns user object
+ function checkUserPass(emailToCheck, passToCheck, cb) {
+  let userInDB = cb(emailToCheck);
+    if(userInDB.password === passToCheck) {
+      return userInDB.id;
+    } else {
+    return undefined;
+    }
+ };
+
+ // checks if user is in db, and returns user object
+ function returnUserID(email, pass) {
+   let userID;
+   if (checkUserEmail(email) && checkUserEmail(pass))
+
+
+   for(var id in usersDB){
+    if((usersDB[id].password === email) &&
+    (){
       userInDB = true;
       } else {
         userInDB = false;
@@ -101,6 +126,14 @@ app.get("/register", (request, response) => {
     userID: usersDB[request.cookies["user_id"]]
   };
   response.render("register", templateVars);
+});
+
+// render login page
+app.get("/login", (request, response) => {
+  let templateVars = {
+    userID: usersDB[request.cookies["user_id"]]
+  };
+  response.render("login", templateVars);
 });
 
 //Add new url
@@ -156,6 +189,28 @@ app.post("/urls/:id/update", (request, response) => {
  });
 
  app.post('/login', (request, response) => {
+     // check if email is empty empty string
+     let emailEmpty = validator.isEmpty(request.body.email);
+     // check if password is empty string
+     let passwordEmpty = validator.isEmpty(request.body.email);
+     // check if user email exists in usersDB
+     let isUserEmail = checkUserEmail(request.body.email);
+     // check if user pass exists in usersDB
+     let isUserPass = checkUserPass(request.body.password);
+     // return userID for email and pass;
+     let useId =
+
+     if (emailEmpty || passwordEmpty) {
+       return response.redirect(302, "/login")
+     } else if (user && pass){
+       // set cookie "user_id"  and redirect to urls page
+        response.cookie("user_id", requ);
+       return response.redirect(302, "/urls");
+     } return response.redirect(400, "/urls");
+
+
+
+
    // set cookie using res.cookie without using options.
    // display username input back to the user
    response.cookie("username", request.body.username);
@@ -177,7 +232,7 @@ app.post("/urls/:id/update", (request, response) => {
    // check if password is empty string
    let passwordEmpty = validator.isEmpty(request.body.email);
    // check if user exists in usersDB if yes then return, else
-   let user = isUser(request.body.email);
+   let user = checkUserEmail(request.body.email);
 
    if (emailEmpty || passwordEmpty) {
      return response.redirect(400, "/register")
