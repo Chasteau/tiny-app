@@ -1,9 +1,11 @@
-var express = require("express");
-var app = express();
-var PORT = process.env.PORT || 8080;
+const express = require("express");
+const PORT = process.env.PORT || 8080;
 const bodyParser = require("body-parser");
-app.use(bodyParser.urlencoded({extended: true}));
+const cookieParser = require("cookie-parser");
+const app = express();
 
+app.use(bodyParser.urlencoded({extended: true}));
+app.use(cookieParser());
 app.set("view engine", "ejs");
 
 let urlsDB = [
@@ -21,7 +23,6 @@ let urlsDB = [
    return Math.random().toString(36).substr(2,6);
  }
 
-
  function findURL(name){
    let foundURL;
    urlsDB.forEach((url) => {
@@ -33,17 +34,27 @@ let urlsDB = [
  }
 
 app.get("/urls", (request, response) => {
-  let templateVars = {urls: urlsDB};
+  let templateVars = {
+    urls: urlsDB,
+  username: request.cookies["username"]
+};
   response.render("urls_index", templateVars)
 });
 
 app.get("/urls/new", (request, response) => {
-  response.render("urls_new");
+  let templateVars = {
+  username: request.cookies["username"]
+};
+  response.render("urls_new", templateVars);
 });
 
 app.get("/urls/:id", (request, response) => {
-  let obj = findURL(request.params.id);
-  response.render('urls_show', obj)
+  let user = findURL(request.params.id);
+  let templateVars = {
+  username: request.cookies["username"]
+};
+  // let obj = findURL(request.params.id);
+  response.render('urls_show', {templateVars, user})
   // // find url from db
   // let url = findURL(request.params.id);
   //
@@ -70,7 +81,10 @@ app.get("/u/:id", (request, response) => {
   //  let longURL = urlsDB.original[request.params.shortURL];
   //  let templateVars = {shortURL: request.params.id,
   //    longURL: urlsDB.original[request.params.id] };
-   response.render("urls_show")
+  let templateVars = {
+  username: request.cookies["username"]
+};
+   response.render("urls_show", templateVars)
  });
 
 //Add new url
@@ -121,10 +135,33 @@ app.post("/urls/:id/update", (request, response) => {
     }
     return u;
   });
-
   urlsDB = updatedDB;
-
   response.redirect(302, "/urls")
+ });
+
+
+ app.post('/login', (request, response) => {
+  //   console.log(request.params.id);
+  //  console.log(request.body.username, );
+   // set cookie using res.cookie without using options.
+
+   // display username input back to the user
+   response.cookie("username", request.body.username);
+   //console.log(response.cookie(request.body.username));
+   // redirect user to urls page
+   response.redirect(302, '/urls');
+ });
+
+ app.post('/logout', (request, response) => {
+  //   console.log(request.params.id);
+  //  console.log(request.body.username, );
+   // set cookie using res.cookie without using options.
+
+   // display username input back to the user
+   response.cookie("username", request.body.username);
+   //console.log(response.cookie(request.body.username));
+   // redirect user to urls page
+   response.redirect(302, '/urls');
  });
 
 app.listen(PORT, () =>{

@@ -1,4 +1,17 @@
 <!-- views/partials//header.ejs -->
+<% if(!username) { %>
+  <form action="/login" method="POST">
+  <input type="text" name="username" placeholder="Enter Username" />
+  <input type="submit" value="Login" />
+  </form>
+<% } else { %>
+  <form action="/login" method="POST">
+  <input type="text" name="username" placeholder = <%= username%> />
+  <input type="submit" value="Logout" />
+  </form>
+<% }%>
+
+<!--
 <nav class="navbar navbar-default"role="navigation">
  	<div>
 		<div class = "navbar-header">
@@ -14,3 +27,5 @@
 		</ul>
 	</div>
 </nav>
+
+-->
