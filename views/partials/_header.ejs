@@ -1,31 +1,7 @@
 <!-- views/partials//header.ejs -->
-<% if(!userID) { %>
-  <form action="/login" method="POST">
-  <input type="text" name="username" placeholder="Enter Username" />
-  <input type="submit" value="Login" />
-  </form>
-<% } else { %>
-  <form action="/logout" method="POST">
-  <input type="text" name="username" placeholder = <%= username%> />
-  <input type="submit" value="Logout" />
-  </form>
-<% }%>
-
-<!--
-<nav class="navbar navbar-default"role="navigation">
- 	<div>
-		<div class = "navbar-header">
-			<a class="navbar-brand" href="#">
-				<span class="glyphicon glyphicon glyphicon-tree-delicious">
-				</spans>
-				EJS Is Fun
-			</a>
-		</div>
-		<ul class="nav navbar-nav">
-			<li> <a href="/">Home</a></li>
-			<li> <a href="/">About</a></li>
-		</ul>
-	</div>
-</nav>
-
--->
+<a href="/register">
+  <button type="button">Register</button>
+</a>
+<a href="/login">
+  <button type="button">Login</button>
+</a>
