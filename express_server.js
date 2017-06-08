@@ -142,26 +142,27 @@ app.post("/urls/:id/update", (request, response) => {
 
  app.post('/login', (request, response) => {
   //   console.log(request.params.id);
-  //  console.log(request.body.username, );
+   //console.log(request.body.username);
    // set cookie using res.cookie without using options.
 
    // display username input back to the user
    response.cookie("username", request.body.username);
    //console.log(response.cookie(request.body.username));
    // redirect user to urls page
+   //console.log(request.cookies["username"]);
    response.redirect(302, '/urls');
+
  });
 
  app.post('/logout', (request, response) => {
-  //   console.log(request.params.id);
-  //  console.log(request.body.username, );
-   // set cookie using res.cookie without using options.
-
-   // display username input back to the user
-   response.cookie("username", request.body.username);
-   //console.log(response.cookie(request.body.username));
-   // redirect user to urls page
-   response.redirect(302, '/urls');
+  //  let username = request.body.username;
+  //  console.log('usernae:',username);
+  //  console.log('cookie:',request.cookies["username"]);
+   //
+  //  if(username == request.cookies["username"]) {
+     response.clearCookie("username");
+     response.redirect(302, '/urls');
+  //  }
  });
 
 app.listen(PORT, () =>{
