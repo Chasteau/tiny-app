@@ -32,12 +32,12 @@ const usersDB = {
     password: "dishwasher-funk"
   }
 }
-
+//generate random string for user id and short url
  function generateRandomString() {
    return Math.random().toString(36).substr(2,6);
  }
 
-// checks if url is in db and returns the object with url
+// checks if url is in db and returns the url object
  function findURL(name){
    let foundURL;
    urlsDB.forEach((url) => {
@@ -74,8 +74,6 @@ app.get("/urls", (request, response) => {
     urls: urlsDB,
     userID: usersDB[request.cookies["user_id"]]
   };
-  // console.log(usersDB);
-  // console.log(request.cookies["user_id"]);
   response.render("urls_index", templateVars)
 });
 
@@ -87,6 +85,7 @@ app.get("/urls/new", (request, response) => {
   response.render("urls_new", templateVars);
 });
 
+//display specific short url and long url by id
 app.get("/urls/:id", (request, response) => {
   let url = findURL(request.params.id);
   let templateVars = {
@@ -95,6 +94,7 @@ app.get("/urls/:id", (request, response) => {
   response.render('urls_show', {templateVars, url})
 });
 
+// show short url by id
 app.get("/u/:id", (request, response) => {
   let templateVars = {
     userID: usersDB[request.cookies["user_id"]]
@@ -125,7 +125,6 @@ app.post("/urls", (request, response) => {
       original: request.body.longURL
   }
   urlsDB.push(newUrl);
-  //console.log(urlsDB);
   response.redirect(301, "/urls")
 });
 
@@ -142,7 +141,6 @@ app.post('/urls/:id/delete', (request, response) => {
   //remove from urlsDB
   const index = urlsDB.indexOf(url);
   urlsDB.splice(index, 1);
-
   //redirect to "/urls" index
   response.redirect(302,"/urls" )
 });
@@ -151,11 +149,9 @@ app.post('/urls/:id/delete', (request, response) => {
 app.post("/urls/:id/update", (request, response) => {
   // check if url in db
   const url = findURL(request.params.id);
-  //console.log(url);
 
   if(!url) {
-    response.status(404).send('Url not found');
-    return;
+    return response.status(404).send('Url not found');
   }
   //if yes, then update original url
   url.original = request.body.name;
@@ -172,7 +168,7 @@ app.post("/urls/:id/update", (request, response) => {
 
  app.post('/login', (request, response) => {
      // check if email is empty empty string
-     let emailEmpty = validator.isEmpty(request.body.username);
+     let emailEmpty = validator.isEmpty(request.body.email);
      // check if password is empty string
      let passwordEmpty = validator.isEmpty(request.body.password);
 
@@ -181,7 +177,7 @@ app.post("/urls/:id/update", (request, response) => {
      }
        //  // return userID for email and pass;
        //  // checkUserPass(emailToCheck, passToCheck, cb)
-      let userId = checkUserPass(request.body.username,
+      let userId = checkUserPass(request.body.email,
         request.body.password, checkUserEmail);
         if(userId) {
           // set cookie "user_id" and redirect to urls page
@@ -191,7 +187,7 @@ app.post("/urls/:id/update", (request, response) => {
       return response.redirect(302, "/login");
  });
 
- // log out users
+ // log out user
  app.post('/logout', (request, response) => {
      response.clearCookie("user_id");
      response.redirect(302, '/login');
