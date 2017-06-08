@@ -2,6 +2,7 @@ const express = require("express");
 const PORT = process.env.PORT || 8080;
 const bodyParser = require("body-parser");
 const cookieParser = require("cookie-parser");
+const validator = require('validator');
 const app = express();
 
 app.use(bodyParser.urlencoded({extended: true}));
@@ -60,17 +61,21 @@ const usersDB = {
    return userInDB;
  };
 
+// display urls index page
 app.get("/urls", (request, response) => {
   let templateVars = {
     urls: urlsDB,
-    username: request.cookies["username"]
+    userID: usersDB[request.cookies["user_id"]]
   };
+  // console.log(usersDB);
+  // console.log(request.cookies["user_id"]);
   response.render("urls_index", templateVars)
 });
 
+//display page to add new url
 app.get("/urls/new", (request, response) => {
   let templateVars = {
-  username: request.cookies["username"]
+  userID: usersDB[request.cookies["user_id"]]
   };
   response.render("urls_new", templateVars);
 });
@@ -78,24 +83,24 @@ app.get("/urls/new", (request, response) => {
 app.get("/urls/:id", (request, response) => {
   let user = findURL(request.params.id);
   let templateVars = {
-    username: request.cookies["username"]
+    userID: usersDB[request.cookies["user_id"]]
   };
   response.render('urls_show', {templateVars, user})
 });
 
 app.get("/u/:id", (request, response) => {
   let templateVars = {
-    username: request.cookies["username"]
+    userID: usersDB[request.cookies["user_id"]]
   };
    response.render("urls_show", templateVars)
  });
 
 // render registration page
 app.get("/register", (request, response) => {
-  // let templateVars = {
-  // username: request.cookies["username"]
-  // };
-  response.render("register");
+  let templateVars = {
+    userID: usersDB[request.cookies["user_id"]]
+  };
+  response.render("register", templateVars);
 });
 
 //Add new url
@@ -167,9 +172,16 @@ app.post("/urls/:id/update", (request, response) => {
 
  // user registration
  app.post('/register', (request, response) => {
-   let user = isUser(request.body.email);
+   // check if email is empty empty string
+   let emailEmpty = validator.isEmpty(request.body.email);
+   // check if password is empty string
+   let passwordEmpty = validator.isEmpty(request.body.email);
    // check if user exists in usersDB if yes then return, else
-   if(!user){
+   let user = isUser(request.body.email);
+
+   if (emailEmpty || passwordEmpty) {
+     return response.redirect(400, "/register")
+   } else if (!user){
     // generate random user id using random string function
     newUserId = generateRandomString();
      //add newuser to usersDB (email, pass, userid)
@@ -181,7 +193,7 @@ app.post("/urls/:id/update", (request, response) => {
       // set cookie "user_id"  and redirect to urls page
       response.cookie("user_id", newUserId);
      return response.redirect(302, "/urls");
-   } return response.redirect(302, "/urls");
+   } return response.redirect(400, "/urls");
  });
 
 app.listen(PORT, () =>{
