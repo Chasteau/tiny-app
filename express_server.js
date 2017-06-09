@@ -12,11 +12,13 @@ app.set("view engine", "ejs");
 const urlsDB = [
   {
     shorter: "b2xVn3",
-    original: "http://www.lighthouselabs.ca"
+    original: "http://www.lighthouselabs.ca",
+    userID: "userRandomID"
   },
   {
     shorter: "b2xVn2",
-    original: "http://www.google.com"
+    original: "http://www.google.com",
+    userID: "user2RandomID"
   }
 ];
 
@@ -66,6 +68,27 @@ const usersDB = {
       return userInDB.id;
     }
     return false;
+  };
+
+  function urlsForUser (id) {
+    urlsDB.forEach((url) => {
+      if(url.userID == id) {
+        return urlsDB[url];
+      }
+      return false;
+    });
+  };
+
+// check urls for userId return urls object
+function urlsForUser(id) {
+  let usersURL = {};
+    urlsDB.forEach((url) => {
+      if(url.userID == id) {
+        usersURL = url;
+        return usersURL;
+      }
+       return false;
+    });
   };
 
 // display urls index page
