@@ -13,25 +13,25 @@ const urlsDB = [
   {
     shorter: "b2xVn3",
     original: "http://www.lighthouselabs.ca",
-    userID: "userRandomID"
+    userID: "user1"
   },
   {
     shorter: "b2xVn2",
     original: "http://www.google.com",
-    userID: "user2RandomID"
+    userID: "user2"
   }
 ];
 
 const usersDB = {
-  "userRandomID": {
-    id: "userRandomID",
-    email: "user@example.com",
-    password: "purple-monkey-dinosaur"
+  "user1": {
+    id: "user1",
+    email: "user1@x.com",
+    password: "purple"
   },
- "user2RandomID": {
-    id: "user2RandomID",
-    email: "user2@example.com",
-    password: "dishwasher-funk"
+ "user2": {
+    id: "user2",
+    email: "user2@x.com",
+    password: "funk"
   }
 }
 //generate random string for user id and short url
@@ -84,11 +84,6 @@ function urlsForUser(id) {
 // display urls index page
 app.get("/urls", (request, response) => {
   //check user id, and show users list alone
-  console.log(request.cookies);
-  console.log(request.cookies["user_id"]);
-  console.log(urlsForUser(request.cookies["user_id"]));
-  console.log(urlsForUser("user2RandomID"));
-
   if(!request.cookies) {
     return response.redirect(302,"/login");
   }
@@ -101,13 +96,16 @@ app.get("/urls", (request, response) => {
 
 //display page to add new url
 app.get("/urls/new", (request, response) => {
-  if(request.cookies["user_id"]) {
-    let templateVars = {
-      userID: usersDB[request.cookies["user_id"]]
-    };
-    return response.render("urls_new", templateVars);
+  console.log(request.cookies);
+  //check user id, and show users list alone
+  if(!request.cookies) {
+    return response.redirect( 302,"/login");
   }
-  return response.redirect(302, "/login");
+  let templateVars = {
+    urls: urlsForUser(request.cookies["user_id"]),
+    userID: usersDB[request.cookies["user_id"]]
+    }
+    return response.render("urls_new", templateVars);
 });
 
 // show short url by id
@@ -139,19 +137,22 @@ app.get("/login", (request, response) => {
 
 //display specific short url and long url by id
 app.get("/urls/:id", (request, response) => {
-  console.log("here we are" );
-  let url = findURL(request.params.id);
-  let templateVars = {
+  if(!request.cookies) {
+    return response.redirect(302, "/urls");
+  } let templateVars = {
+    urls: urlsForUser(request.cookies["user_id"]),
     userID: usersDB[request.cookies["user_id"]]
-  };
-  response.render('urls_show', {templateVars, url})
+  }
+  return response.render('urls_show', templateVars)
 });
 
 //Add new url
 app.post("/urls", (request, response) => {
+
   const newUrl = {
       shorter: generateRandomString(),
-      original: request.body.longURL
+      original: request.body.longURL ,
+      userID: request.cookies["user_id"]
   }
   urlsDB.push(newUrl);
   response.redirect(301, "/urls")
@@ -180,22 +181,26 @@ app.post('/urls/:id/delete', (request, response) => {
 
 // Update Url
 app.post("/urls/:id/update", (request, response) => {
+  // check if url belongs to users
+  if(!request.cookies) {
+    response.redirect(302,"/urls" )
+  }
   // check if url in db
-  const url = findURL(request.params.id);
-
+  let url = findURL(request.params.id);
   if(!url) {
     return response.status(404).send('Url not found');
   }
   //if yes, then update original url
+  // can use splice fruits.splice(2, 0, "Lemon", "Kiwi");
   url.original = request.body.name;
   //replace oringal url with new longURL
-  const updatedDB = urlsDB.map((u) => {
-    if(u.shorter == url.shorter) {
-      return url;
-    }
-    return u;
-  });
-  urlsDB = updatedDB;
+  // let updatedDB = urlsDB.map((u) => {
+  //   if(u.shorter == url.shorter) {
+  //     return url;
+  //   }
+  //   return u;
+  // });
+  // urlsDB = updatedDB;
   response.redirect(302, "/urls")
  });
 
