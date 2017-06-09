@@ -70,31 +70,30 @@ const usersDB = {
     return false;
   };
 
-  function urlsForUser (id) {
-    urlsDB.forEach((url) => {
-      if(url.userID == id) {
-        return urlsDB[url];
-      }
-      return false;
-    });
-  };
-
 // check urls for userId return urls object
 function urlsForUser(id) {
-  let usersURL = {};
-    urlsDB.forEach((url) => {
-      if(url.userID == id) {
-        usersURL = url;
-        return usersURL;
-      }
-       return false;
-    });
-  };
+  let usersURL = [];
+  urlsDB.forEach((url) => {
+    if(url.userID == id) {
+      usersURL.push(url);
+    }
+  });
+  return usersURL;
+}
 
 // display urls index page
 app.get("/urls", (request, response) => {
+  //check user id, and show users list alone
+  console.log(request.cookies);
+  console.log(request.cookies["user_id"]);
+  console.log(urlsForUser(request.cookies["user_id"]));
+  console.log(urlsForUser("user2RandomID"));
+
+  if(!request.cookies) {
+    return response.redirect(302,"/login");
+  }
   let templateVars = {
-    urls: urlsDB,
+    urls: urlsForUser(request.cookies["user_id"]),
     userID: usersDB[request.cookies["user_id"]]
   };
   response.render("urls_index", templateVars)
@@ -160,9 +159,13 @@ app.post("/urls", (request, response) => {
 
 // Delete Url
 app.post('/urls/:id/delete', (request, response) => {
+  // check if user logged in
+
+  // check which user url belongs to user id
+
   // find if url is in db
   const url = findURL(request.params.id);
-  // console.log(url);
+
   // if not found return a 404
   if(!url) {
     response.status(404).send(" URL not found!");
@@ -196,6 +199,7 @@ app.post("/urls/:id/update", (request, response) => {
   response.redirect(302, "/urls")
  });
 
+// user login
  app.post('/login', (request, response) => {
      // check if email is empty empty string
      let emailEmpty = validator.isEmpty(request.body.email);
