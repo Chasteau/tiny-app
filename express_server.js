@@ -79,19 +79,13 @@ app.get("/urls", (request, response) => {
 
 //display page to add new url
 app.get("/urls/new", (request, response) => {
-  let templateVars = {
-  userID: usersDB[request.cookies["user_id"]]
-  };
-  response.render("urls_new", templateVars);
-});
-
-//display specific short url and long url by id
-app.get("/urls/:id", (request, response) => {
-  let url = findURL(request.params.id);
-  let templateVars = {
-    userID: usersDB[request.cookies["user_id"]]
-  };
-  response.render('urls_show', {templateVars, url})
+  if(request.cookies["user_id"]) {
+    let templateVars = {
+      userID: usersDB[request.cookies["user_id"]]
+    };
+    return response.render("urls_new", templateVars);
+  }
+  return response.redirect(302, "/login");
 });
 
 // show short url by id
@@ -112,10 +106,23 @@ app.get("/register", (request, response) => {
 
 // render login page
 app.get("/login", (request, response) => {
+  if(request.cookies["user_id"]) {
+    // let templateVars = {
+    //   userID: usersDB[request.cookies["user_id"]]
+    // };
+    return response.redirect(302, "/urls");
+  }
+  return response.render("login", {userID: null});
+});
+
+//display specific short url and long url by id
+app.get("/urls/:id", (request, response) => {
+  console.log("here we are" );
+  let url = findURL(request.params.id);
   let templateVars = {
     userID: usersDB[request.cookies["user_id"]]
   };
-  response.render("login", templateVars);
+  response.render('urls_show', {templateVars, url})
 });
 
 //Add new url
