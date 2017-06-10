@@ -12,7 +12,7 @@ app.use(cookieParser());
 app.use(cookieSession({
   name: 'user_id',
   keys: ["Key1"],
-  secret: "Super-Secret-Key"
+  // secret: "Super-Secret-Key"
 }))
 app.set("view engine", "ejs");
 
@@ -103,8 +103,8 @@ app.get("/urls", (request, response) => {
     return response.redirect(302,"/login");
   }
   let templateVars = {
-    urls: urlsForUser(request.cookies["user_id"]),
-    userID: usersDB[request.cookies["user_id"]]
+    urls: urlsForUser(request.session.user_id),
+    userID: usersDB[request.session.user_id]
   };
   response.render("urls_index", templateVars)
 });
@@ -116,8 +116,8 @@ app.get("/urls/new", (request, response) => {
     return response.redirect( 302,"/login");
   }
   let templateVars = {
-    urls: urlsForUser(request.cookies["user_id"]),
-    userID: usersDB[request.cookies["user_id"]]
+    urls: urlsForUser(request.session.user_id),
+    userID: usersDB[request.session.user_id]
     }
     return response.render("urls_new", templateVars);
 });
@@ -125,7 +125,7 @@ app.get("/urls/new", (request, response) => {
 // show short url by id
 app.get("/u/:id", (request, response) => {
   let templateVars = {
-    userID: usersDB[request.cookies["user_id"]]
+    userID: usersDB[request.session.user_id]
   };
    response.render("urls_show", templateVars)
  });
@@ -133,14 +133,14 @@ app.get("/u/:id", (request, response) => {
 // render registration page
 app.get("/register", (request, response) => {
   let templateVars = {
-    userID: usersDB[request.cookies["user_id"]]
+    userID: usersDB[request.session.user_id]
   };
   response.render("register", templateVars);
 });
 
 // render login page
 app.get("/login", (request, response) => {
-  if(request.cookies["user_id"]) {
+  if(request.session.user_id) {
     // let templateVars = {
     //   userID: usersDB[request.cookies["user_id"]]
     // };
@@ -154,18 +154,24 @@ app.get("/urls/:id", (request, response) => {
   if(!request.cookies) {
     return response.redirect(302, "/urls");
   } let templateVars = {
-    urls: urlsForUser(request.cookies["user_id"]),
-    userID: usersDB[request.cookies["user_id"]]
+    urls: urlsForUser(request.session.user_id),
+    userID: usersDB[request.session.user_id]
   }
   return response.render('urls_show', templateVars)
 });
 
 //Add new url
 app.post("/urls", (request, response) => {
-  const newUrl = {
+
+  let checkForEmpty = validator.isEmpty(request.body.longURL);
+  if(checkForEmpty) {
+    return response.redirect(302,"/urls");
+  }
+  
+  let newUrl = {
       shorter: generateRandomString(),
       original: request.body.longURL ,
-      userID: request.cookies["user_id"]
+      userID: request.session.user_id
   }
   urlsDB.push(newUrl);
   response.redirect(301, "/urls")
@@ -229,7 +235,9 @@ app.post("/urls/:id/update", (request, response) => {
         request.body.password, checkUserEmail);
         if(userId) {
           // set cookie "user_id" and redirect to urls page
-           response.cookie("user_id", userId);
+          //  response.cookie("user_id", userId);
+          request.session.user_id = userId;
+          console.log(request.session.user_id = userId);
            return response.redirect(302, "/urls");
         }
       return response.redirect(302, "/login");
@@ -266,8 +274,8 @@ app.post("/urls/:id/update", (request, response) => {
       // set cookie "user_id"  and redirect to urls page
       // response.cookie("user_id", newUserId);
       request.session.user_id = newUserId;
-      console.log(request.session.user_id = newUserId);
-      console.log(request.session.user_id = usersDB);
+      // console.log(request.session.user_id = newUserId);
+      // console.log(request.session.user_id = usersDB);
      return response.redirect(302, "/urls");
    } return response.redirect(302, "/urls");
  });
