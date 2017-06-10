@@ -2,12 +2,18 @@ const express = require("express");
 const PORT = process.env.PORT || 8080;
 const bodyParser = require("body-parser");
 const cookieParser = require("cookie-parser");
+const cookieSession = require('cookie-session');
 const validator = require('validator');
 const bcrypt = require('bcrypt');
 const app = express();
 
 app.use(bodyParser.urlencoded({extended: true}));
 app.use(cookieParser());
+app.use(cookieSession({
+  name: 'user_id',
+  keys: ["Key1"],
+  secret: "Super-Secret-Key"
+}))
 app.set("view engine", "ejs");
 
 // urls database
@@ -252,13 +258,16 @@ app.post("/urls/:id/update", (request, response) => {
       let newUserId = generateRandomString();
      //add newuser to usersDB (email, pass, userid)
       usersDB[newUserId] = {
-       Id: newUserId,
+       id: newUserId,
        email: request.body.email,
        //generate cryto pass
        password: bcrypt.hashSync(request.body.password, 8)
      }
       // set cookie "user_id"  and redirect to urls page
-      response.cookie("user_id", newUserId);
+      // response.cookie("user_id", newUserId);
+      request.session.user_id = newUserId;
+      console.log(request.session.user_id = newUserId);
+      console.log(request.session.user_id = usersDB);
      return response.redirect(302, "/urls");
    } return response.redirect(302, "/urls");
  });
