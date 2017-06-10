@@ -3,6 +3,7 @@ const PORT = process.env.PORT || 8080;
 const bodyParser = require("body-parser");
 const cookieParser = require("cookie-parser");
 const validator = require('validator');
+const bcrypt = require('bcrypt');
 const app = express();
 
 app.use(bodyParser.urlencoded({extended: true}));
@@ -183,7 +184,12 @@ app.post('/urls/:id/delete', (request, response) => {
 app.post("/urls/:id/update", (request, response) => {
   // check if url belongs to users
   if(!request.cookies) {
-    response.redirect(302,"/urls" )
+    return response.redirect(302,"/urls" );
+  }
+  // Check if empty, then return to urls
+  let checkForEmpty = validator.isEmpty(request.body.name);
+  if(checkForEmpty) {
+    return response.redirect(302,"/urls");
   }
   // check if url in db
   let url = findURL(request.params.id);
@@ -191,16 +197,8 @@ app.post("/urls/:id/update", (request, response) => {
     return response.status(404).send('Url not found');
   }
   //if yes, then update original url
-  // can use splice fruits.splice(2, 0, "Lemon", "Kiwi");
   url.original = request.body.name;
-  //replace oringal url with new longURL
-  // let updatedDB = urlsDB.map((u) => {
-  //   if(u.shorter == url.shorter) {
-  //     return url;
-  //   }
-  //   return u;
-  // });
-  // urlsDB = updatedDB;
+
   response.redirect(302, "/urls")
  });
 
