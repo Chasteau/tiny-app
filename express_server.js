@@ -125,6 +125,7 @@ app.get("/urls/new", (request, response) => {
 // show short url by id
 app.get("/u/:id", (request, response) => {
   let templateVars = {
+    urls: urlsForUser(request.session.user_id),
     userID: usersDB[request.session.user_id]
   };
    response.render("urls_show", templateVars)
@@ -167,7 +168,7 @@ app.post("/urls", (request, response) => {
   if(checkForEmpty) {
     return response.redirect(302,"/urls");
   }
-  
+
   let newUrl = {
       shorter: generateRandomString(),
       original: request.body.longURL ,
@@ -184,7 +185,7 @@ app.post('/urls/:id/delete', (request, response) => {
   // check which user url belongs to user id
 
   // find if url is in db
-  const url = findURL(request.params.id);
+  let url = findURL(request.params.id);
 
   // if not found return a 404
   if(!url) {
@@ -192,7 +193,7 @@ app.post('/urls/:id/delete', (request, response) => {
     return;
   }
   //remove from urlsDB
-  const index = urlsDB.indexOf(url);
+  let index = urlsDB.indexOf(url);
   urlsDB.splice(index, 1);
   //redirect to "/urls" index
   response.redirect(302,"/urls" )
@@ -235,9 +236,7 @@ app.post("/urls/:id/update", (request, response) => {
         request.body.password, checkUserEmail);
         if(userId) {
           // set cookie "user_id" and redirect to urls page
-          //  response.cookie("user_id", userId);
           request.session.user_id = userId;
-          console.log(request.session.user_id = userId);
            return response.redirect(302, "/urls");
         }
       return response.redirect(302, "/login");
@@ -272,10 +271,7 @@ app.post("/urls/:id/update", (request, response) => {
        password: bcrypt.hashSync(request.body.password, 8)
      }
       // set cookie "user_id"  and redirect to urls page
-      // response.cookie("user_id", newUserId);
       request.session.user_id = newUserId;
-      // console.log(request.session.user_id = newUserId);
-      // console.log(request.session.user_id = usersDB);
      return response.redirect(302, "/urls");
    } return response.redirect(302, "/urls");
  });
