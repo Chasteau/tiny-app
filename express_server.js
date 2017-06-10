@@ -10,6 +10,7 @@ app.use(bodyParser.urlencoded({extended: true}));
 app.use(cookieParser());
 app.set("view engine", "ejs");
 
+// urls database
 const urlsDB = [
   {
     shorter: "b2xVn3",
@@ -23,16 +24,21 @@ const urlsDB = [
   }
 ];
 
+const pass1 = "purple";
+const hashed_pass1 = bcrypt.hashSync(pass1, 10);
+const pass2 = "funk";
+const hashed_pass2 = bcrypt.hashSync(pass2, 10);
+// Users database
 const usersDB = {
   "user1": {
     id: "user1",
     email: "user1@x.com",
-    password: "purple"
+    password: hashed_pass1
   },
  "user2": {
     id: "user2",
     email: "user2@x.com",
-    password: "funk"
+    password: hashed_pass2
   }
 }
 //generate random string for user id and short url
@@ -61,12 +67,14 @@ const usersDB = {
     }
     return null;
  };
-
  // checks if user is in db, and returns userID
  function checkUserPass(emailToCheck, passToCheck, cb) {
   let userInDB = cb(emailToCheck);
-  if (userInDB && userInDB.password === passToCheck) {
+  if(userInDB) {
+    if ((bcrypt.compareSync(passToCheck, userInDB.password)) &&
+    (!(bcrypt.compareSync(passToCheck, "This-Returns-Fake")))) {
       return userInDB.id;
+      }
     }
     return false;
   };
@@ -97,7 +105,6 @@ app.get("/urls", (request, response) => {
 
 //display page to add new url
 app.get("/urls/new", (request, response) => {
-  console.log(request.cookies);
   //check user id, and show users list alone
   if(!request.cookies) {
     return response.redirect( 302,"/login");
@@ -149,7 +156,6 @@ app.get("/urls/:id", (request, response) => {
 
 //Add new url
 app.post("/urls", (request, response) => {
-
   const newUrl = {
       shorter: generateRandomString(),
       original: request.body.longURL ,
@@ -198,7 +204,6 @@ app.post("/urls/:id/update", (request, response) => {
   }
   //if yes, then update original url
   url.original = request.body.name;
-
   response.redirect(302, "/urls")
  });
 
@@ -249,7 +254,8 @@ app.post("/urls/:id/update", (request, response) => {
       usersDB[newUserId] = {
        Id: newUserId,
        email: request.body.email,
-       password: request.body.password
+       //generate cryto pass
+       password: bcrypt.hashSync(request.body.password, 8)
      }
       // set cookie "user_id"  and redirect to urls page
       response.cookie("user_id", newUserId);
