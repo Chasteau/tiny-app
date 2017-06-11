@@ -4,37 +4,35 @@
     <title> TinyApp </title>
   </head>
   <header> <%include ./partials/_header %> </header>
-  <body>
-    <h1>David's Amazing URL Shortener!</h1>
-
+  <body style="font-size:20px; padding:50px;">
+    <h2>The best URL shortner on the web!</h2>
+    <p>All URL's in your account:</p>
     <a href="/urls/new">
       <button type="button">Add New</button>
     </a>
-
     <table>
-      <tr>
-        <td><strong>Original URL</strong></td>
-        <td><strong>Shortned URL</strong></td>
-      </tr>
-    <% urls.forEach((url) => {%>
-    <tr>
-      <td> <%= url.original %> ==> </td>
-      <td> <%= url.shorter %> </td>
-      <td>
-        <a href="/urls/<%= url.shorter%>">
-          <button type="button">Edit</button>
-        </a>
-      </td>
-      <td>
-      <% if(userID) { %>
-        <form action="/urls/<%= url.shorter%>/delete" method="POST">
-        <input type="submit" value="Delete" />
-        </form>
-      <% }%>
-      </td>
-    </tr>
+        <tr>
+          <td><strong> Original URL &nbsp&nbsp&nbsp&nbsp&nbsp</strong></td>
+          <td><strong> Shortned URL </strong></td>
+        </tr>
+        <% urls.forEach((url) => {%>
+        <tr>
+          <td><a href="<%=url.original%>"><%=url.original%></a> &nbsp&nbsp&nbsp&nbsp&nbsp </td>
+          <td> <%= url.shorter %> &nbsp&nbsp&nbsp&nbsp&nbsp  </td>
+          <td>
+            <a href="/urls/<%= url.shorter%>">
+              <button type="button">Edit</button>
+            </a>
+          </td>
+          <td>
+          <% if(userID) { %>
+            <form action="/urls/<%= url.shorter%>/delete" method="POST">
+            <input type="submit" value="Delete" />
+            </form>
+          <% }%>
+          </td>
+        </tr>
     <% }) %>
-  </table>
-
+    </table>
   </body>
 </html>

@@ -4,16 +4,22 @@
     <title>TinyApp</title>
   </head>
   <header> <%include ./partials/_header %> </header>
-  <body>
-    <h1>Full URL to Short URL!<h2>
-      <% if(userID) { %>
-      <% urls.forEach((url) => {%>
-        <%= url.shorter%> ----- <%= url.original%>
+  <body style="font-size:20px; padding:50px;">
+    </div>
+      <h2>Original &nbsp&nbsp&nbsp Shortened<h2>
+        <% if(!userID) { %>
+          <% urls.forEach((url) => {%>
+          <a href="<%=url.original%>"><%=url.original%></a> ---- <%= url.shorter%>
+          <Register or Login to make changes to these links.>
+          <% }) %>
+      <% } else if(userID) { %>
+        <% urls.forEach((url) => {%>
+        <a href="<%=url.original%>"><%=url.original%></a> ---- <%= url.shorter%>
         <form action="/urls/<%= url.shorter %>/update" method="POST">
         <input type="text" name="name" placeholder="<%= url.original %>" />
         <input type="submit" value="Update" />
-        </form>
-      <% }) %>
-      <% }%>
+      </form>
+    <% }) %>
+    <% }%>
   </body>
 </html>

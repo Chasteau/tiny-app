@@ -1,15 +1,30 @@
 <!-- views/partials//header.ejs -->
+<style>
+  .column-left { float: left; width: 33%; }
+  .column-right { float: right; width: 33%; }
+  .column-center { display: inline-block; width: 33%; }
+</style>
 
-<% if(!userID) { %>
-  <a href="/register">
-    <button type="button">Register</button>
-  </a>
-<% } else if(userID) { %>
-  <form action="/logout" method="POST">
-  <input type="submit" value="Logout" />
-  </form>
-<% } else { %>
-  <a href="/login">
-    <button type="button">Login</button>
-  </a>
-<% }%>
+<div class="container" style="padding-bottom:100px;">
+   <div class="column-center">
+     <% if(userID) { %>
+     <strong><%= userID.email %> </strong>
+     <%}%>
+   </div>
+   <div class="column-left">
+     <h1>TinyApp</h1>
+   </div>
+<div class="column-right">
+  <% if(!userID) { %>
+    <a href="/register">
+      <button type="button">Register</button>
+    </a>
+    <a href="/login">
+      <button type="button">Login</button>
+    </a>
+  <% } else if(userID) { %>
+    <form action="/logout" method="POST">
+    <input type="submit" value="Logout" />
+    </form>
+  <% } %>
+</div>

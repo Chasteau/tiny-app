@@ -1,3 +1,4 @@
+// require module
 const express = require("express");
 const PORT = process.env.PORT || 8080;
 const bodyParser = require("body-parser");
@@ -7,13 +8,13 @@ const validator = require('validator');
 const bcrypt = require('bcrypt');
 const app = express();
 
+// initialiaze middleware
 app.use(bodyParser.urlencoded({extended: true}));
 app.use(cookieParser());
 app.use(cookieSession({
   name: 'user_id',
   keys: ["Key1"],
-  // secret: "Super-Secret-Key"
-}))
+}));
 app.set("view engine", "ejs");
 
 // urls database
@@ -25,7 +26,7 @@ const urlsDB = [
   },
   {
     shorter: "b2xVn2",
-    original: "http://www.google.com",
+    original: "https://www.google.com",
     userID: "user2"
   }
 ];
@@ -46,6 +47,11 @@ const usersDB = {
     email: "user2@x.com",
     password: hashed_pass2
   }
+}
+
+// Error messages
+const errorMessage =  {
+  login: "Please check email or password!"
 }
 //generate random string for user id and short url
  function generateRandomString() {
@@ -112,7 +118,7 @@ app.get("/urls", (request, response) => {
 //display page to add new url
 app.get("/urls/new", (request, response) => {
   //check user id, and show users list alone
-  if(!request.cookies) {
+  if(!request.session.user_id) {
     return response.redirect( 302,"/login");
   }
   let templateVars = {
@@ -124,11 +130,18 @@ app.get("/urls/new", (request, response) => {
 
 // show short url by id
 app.get("/u/:id", (request, response) => {
-  let templateVars = {
-    urls: urlsForUser(request.session.user_id),
-    userID: usersDB[request.session.user_id]
-  };
-   response.render("urls_show", templateVars)
+  urlsDB.forEach( (url) => {
+    if(request.params.id == url.shorter) {
+    return response.redirect(302, url.original);
+    }
+  });
+    return response.status(404).send("404 Error <br><strong>URL Not Found!</strong>");
+ //  let templateVars = {
+ //    urls: urlsForUser(request.session.user_id),
+ //    userID: usersDB[request.session.user_id]
+ //  };
+ //   response.render("urls_show", templateVars)
+ // });
  });
 
 // render registration page
@@ -158,20 +171,39 @@ app.get("/urls/:id", (request, response) => {
     urls: urlsForUser(request.session.user_id),
     userID: usersDB[request.session.user_id]
   }
-  return response.render('urls_show', templateVars)
+    return response.render('urls_show', templateVars)
 });
 
 //Add new url
 app.post("/urls", (request, response) => {
 
+  //check if input is empty string -> else redirect to same page
   let checkForEmpty = validator.isEmpty(request.body.longURL);
   if(checkForEmpty) {
-    return response.redirect(302,"/urls");
+    return response.redirect(302,"/urls/new");
   }
-
+  //check if inpur is valid url .com/.ca etc -> else redirect to same page
+  let chechIfValidURL = validator.isURL(request.body.longURL);
+  if(!chechIfValidURL) {
+    return response.redirect(302,"/urls/new");
+  }
+  //check if input is empty string -> else add to valid url
+  let checkForHTTPS = validator.contains(request.body.longURL,"https://");
+  let checkForWWW = validator.contains(request.body.longURL,"www");
+  let validURL;
+  if(checkForHTTPS && checkForWWW) {
+    validURL = request.body.longURL;
+  } else if(!checkForHTTPS && !checkForWWW){
+    validURL = `https://www.${request.body.longURL}`
+  } else if(!checkForHTTPS) {
+    validURL = `https://${request.body.longURL}`
+  } else {
+    validURL = request.body.longURL;
+  }
+  //add new url to db -> redirect to urls page
   let newUrl = {
       shorter: generateRandomString(),
-      original: request.body.longURL ,
+      original: validURL,
       userID: request.session.user_id
   }
   urlsDB.push(newUrl);
@@ -270,12 +302,20 @@ app.post("/urls/:id/update", (request, response) => {
        //generate cryto pass
        password: bcrypt.hashSync(request.body.password, 8)
      }
+     // generate an example url for new user
+    let newUrl = {
+         shorter: generateRandomString(),
+         original: "https://www.example.com" ,
+         userID: newUserId
+     }
+     urlsDB.push(newUrl);
       // set cookie "user_id"  and redirect to urls page
       request.session.user_id = newUserId;
      return response.redirect(302, "/urls");
    } return response.redirect(302, "/urls");
  });
 
+// turn on server on port and display message to console
 app.listen(PORT, () =>{
   console.log(`TinyApp is listening on port ${PORT}!`)
 });

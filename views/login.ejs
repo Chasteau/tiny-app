@@ -1,14 +1,19 @@
 <!DOCTYPE html>
 <html lang="en">
   <head></head>
-    <header> <%include ./partials/_header %> </header>
-  <h1>David's Amazing URL Shortener!</h1>
-  <h2>Welcome back...</h2>
+    <header>
+      <a href="/register">
+      <button type="button">Register</button>
+    </a>
+    <h1>TinyApp</h1>
+    <h2>The best URL shortner on the web!</h2>
+  </header>
   <body style="font-size:20px; padding:50px;">
     <% if(!userID) { %>
-      <form action="/login" method="POST">
-      <input type="text" name="email" placeholder="Enter Email" />
-      <input type="text" name="password" placeholder="Enter Password" />
+      <form action="/login" method="POST" style="margin:100px;">
+      <label for="emai">Login to your account</label><br>
+      <input type="text" name="email" placeholder="Enter Email" style="width: 300px"/>
+      <input type="text" name="password" placeholder="Enter Password" style="width: 300px"/><br>
       <input type="submit" value="Login" />
       </form>
     <% } else { %>
